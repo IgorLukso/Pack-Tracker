@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head th:replace="fragments :: page_head('Pack Tracker - Pet Profile')"/>
+
+<body>
+	<div class="container-fluid">
+		<div th:replace="fragments :: navigation"></div>
+		
+		<div>
+			<h2>[[${pageTitle}]]</h2>
+		</div><hr>
+		
+		<form th:action="@{/pets/save}" method="post" style="max-width: 800px; margin: 0 auto" 
+			th:object="${pet}" enctype="multipart/form-data">
+			
+			<input type="hidden" th:field="*{id}" id="id"/>
+			<input type="hidden" th:field="*{photo}" id="photo"/>
+			<input type="hidden" th:field="*{missing}" id="missing"/>
+			<input type="hidden" th:field="*{date}" id="date"/>
+			<input type="hidden" th:field="*{area}" id="area"/>
+			<input type="hidden" th:field="*{street}" id="street"/>
+			
+			<div class="border border-secondary rounded p-4 text-center">
+			
+				<div class="form-group row">
+					<label for="type" class="col-sm-4 col-form-label">Type:</label>
+					<div class="col-sm-8">
+						<select id="type" class="form-control" th:field="*{type}" required>
+							<option th:value="'dog'">Dog</option>
+							<option th:value="'cat'">Cat</option>
+						</select>
+					</div>
+				</div>
+				
+				<div class="form-group row">
+					<label for="type" class="col-sm-4 col-form-label">Gender:</label>
+					<div class="col-sm-8">
+						<select id="gender" class="form-control" th:field="*{gender}" required>
+							<option th:value="'male'">Male</option>
+							<option th:value="'female'">Female</option>
+						</select>
+					</div>
+				</div>
+				
+				<div class="form-group row">
+					<label for="breed" class="col-sm-4 col-form-label">Breed:</label>
+					<div class="col-sm-8">
+						<select id="breed" class="form-control" th:field="*{breed}"
+						 oninput="checkBreedValidity(document.getElementById('type'))" required>
+							<option th:value="'german shepherd'">German Shepherd</option>
+							<option th:value="'beagle'" th:type="dog">Beagle</option>
+							<option th:value="'doberman'" th:type="dog">Doberman</option>
+							<option th:value="'poodle'" th:type="dog">Poodle</option>
+							<option th:value="'american staffordshire terrier'" th:type="dog">American Staffordshire Terrier</option>
+							<option th:value="'great dane'" th:type="dog">Great Dane</option>
+							<option th:value="'husky'" th:type="dog">Husky</option>
+							<option th:value="'siamese'" th:type="cat">Siamese</option>
+							<option th:value="'persian'" th:type="cat">Persian</option>
+							<option th:value="'british shorthair'" th:type="cat">British Shorthair</option>
+							<option th:value="'maine coon'" th:type="cat">Main Coon</option>
+							<option th:value="'sphynx'" th:type="cat">Sphynx</option>
+							<option th:value="'ragdoll'" th:type="cat">Ragdoll</option>
+							<option th:value="'russian blue'" th:type="cat">Russian Blue</option>
+							<option th:value="'cross'">Cross Breed</option>
+						</select>
+					</div>
+				</div>
+				
+				<div class="form-group row">
+					<label for="name" class="col-sm-4 col-form-label">Name:</label>
+					<div class="col-sm-8">
+						<input type="text" id="name" class="form-control" th:field="*{name}" required />
+					</div>
+				</div>
+				
+				<div class="form-group row">
+					<label for="age" class="col-sm-4 col-form-label">Age:</label>
+					<div class="col-sm-8">
+						<input type="number" id="age" class="form-control" th:field="*{age}" min="1" max="20" required />
+					</div>
+				</div>
+				
+				<div class="form-group row">
+					<label for="description" class="col-sm-4 col-form-label">Special Markings:</label>
+					<div class="col-sm-8">
+						<input type="text" id="description" class="form-control" th:field="*{description}" maxlength="250" />
+					</div>
+				</div>
+				
+				<div class="form-group row">
+					<label for="photo" class="col-sm-4 col-form-label">Photo:</label>
+					<div class="col-sm-8">
+						<input type="file" id="fileImage" name="image" accept="image/png image/jpeg" class="mb-3">
+						<img id="thumbnail" alt="photo preview" th:src="@{${pet.photosImagePath}}" class="img-fluid" style="width: 100px"/>
+					</div>
+				</div>
+				
+				<input type="submit" value="Save" class="btn btn-primary m-3"/>
+				<a class="btn btn-secondary" th:href="@{/pets}">Cancel</a>
+				
+			</div>
+		</form>
+		
+		
+		
+		
+		<div class="text-center">
+			<p>Pack Tracker - Copyright &copy; Pack Tracker</p>
+		</div>
+		
+	</div>
+	
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("#fileImage").change(function() {
+				fileSize = this.files[0].size;
+				if (fileSize > 1048576) {
+					this.setCustomValidity("Image's size is too big, please choose image smaller than 1 MB.");
+					this.reportValidity();
+				} else {
+					this.setCustomValidity("");
+					showImageThumbnail(this);
+				}
+			});
+		});
+		
+		function showImageThumbnail(fileInput) {
+			var file = fileInput.files[0];
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				$("#thumbnail").attr("src", e.target.result);
+			};
+			
+			reader.readAsDataURL(file);
+		}
+		
+		function checkBreedValidity(type) {
+			console.log($("#breed").attr("type"));
+			if (type.value != $("#breed").attr("type")) {
+				$("#breed").get(0).setCustomValidity("INVALID");
+			} else
+				$("#breed").get(0).setCustomValidity("");
+		}
+		
+		
+	</script>
+</body>
+</html>

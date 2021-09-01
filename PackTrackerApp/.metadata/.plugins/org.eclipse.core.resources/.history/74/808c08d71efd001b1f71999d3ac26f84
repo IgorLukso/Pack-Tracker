@@ -1,0 +1,83 @@
+package com.packtracker.admin.user;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.Rollback;
+
+import com.packtracker.common.entity.User;
+
+
+@DataJpaTest
+@AutoConfigureTestDatabase(replace=Replace.NONE) //run the test on the real db
+@Rollback(false)
+public class UserRepositoryTests {
+	
+	@Autowired
+	private UserRepository repo;
+	
+	@Test
+	public void testCreateUser() {
+		
+//		User mike = new User("michaeldill@gmail.com","dillon123","D6W","0875434323");
+//		User savedUser = repo.save(mike);
+//					
+//		//assert that the user is persisted in the database
+//		assertThat(savedUser.getId()).isGreaterThan(0);
+	}
+	
+	@Test
+	public void testListAllUsers() {
+		
+		Iterable<User> usersList = repo.findAll();
+		usersList.forEach(user -> System.out.println(user));
+	}
+	
+	@Test
+	public void testGetUserById() {
+		
+		User user = repo.findById(1).get();
+		System.out.println(user);
+		assertThat(user).isNotNull();
+	}
+	
+	@Test 
+	public void testUpdateUserDetails() {
+		
+		User user = repo.findById(5).get();
+		user.setPassword("hrushka123");
+		user.setEmail("hrushka@gmail.com");
+		
+		User user1 = repo.findById(6).get();
+		user1.setEmail("dillon@gmail.com");
+				
+		repo.save(user);
+		repo.save(user1);
+	}
+	
+	@Test
+	public void testDeleteUserById() {
+		
+		repo.deleteById(3);
+	}
+	
+	@Test
+	public void testGetUserByEmail() {
+		String email = "iglukso@gmail.com";
+		User user = repo.getUserByEmail(email);
+		
+		assertThat(user).isNotNull();
+	}
+	
+	@Test
+	public void testCountById() {
+		Integer id = 5;
+		Long countById = repo.countById(id);
+		assertThat(countById).isNotNull().isGreaterThan(0);
+	}
+	
+}

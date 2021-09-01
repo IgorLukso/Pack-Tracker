@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments :: page_head('Pack Tracker - Home')"/>
+
+<body>
+
+	<div id="loading">
+		<img id="loading-image" th:src="@{/images/ajax-loader.gif}" alt="Please, wait.." >
+	</div>
+	
+	<div class="container-fluid">
+	
+		<div th:replace="fragments :: navigation"></div>
+		
+		<div class="modal fade text-center" id="deleteModal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Delete Pet Profile</h4> 
+					</div>
+					
+					<div class="modal-body">
+						<span id="modalBody"></span>
+					</div>
+					
+					 <div class="modal-footer">
+					 	<a class="btn btn-success" href="" id="yesButton">Yes</a>
+					 	<button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+					 </div>
+				</div>
+			</div>
+		</div>
+		
+		<div>
+			<h2>Manage Pet Profiles</h2>
+			<a class="btn btn-primary m-3" title="Add new pet profile" th:href="@{/pets/new}">Add new</a>
+			
+			<div th:if="${message != null}" class="alert alert-success text-center">
+				[[${message}]]
+			</div>
+		</div><hr>
+		
+		<table class="table table-bordered table-striped table-hover table-responsive-md">
+			<thead class="thead-dark">
+				<tr>
+					<th>Photo</th>
+					<th>Name</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="pet: ${listOfPets}">
+					<td>
+						<span th:if="${pet.photo==null}" class="fas fa-dog fa-4x icon-silver ml-3"></span>
+						<img th:if="${pet.photo!=null}" th:src="@{${pet.photosImagePath}}" style="width: 100px"/>
+					</td>
+					<td>
+						[[${pet.name}]] &nbsp;
+						<span th:if="${pet.missing == true}">- missing</span>
+					</td>
+					<td>
+						<div class="text-center">
+							<a class="fas fa-pencil-alt fa-2x icon-green m-3" 
+							th:href="@{'/pets/edit/'+${pet.id}}" title="Edit this pet's profile"></a>&nbsp;
+							
+							<a class="fas fa-trash-alt fa-2x icon-red m-3 link-delete"
+							 th:petName="${pet.name}"
+							 th:href="@{'/pets/delete/'+${pet.id}}" title="Delete this pet's profile"></a>&nbsp;
+							 
+						    <a th:if="${pet.missing == false}" id="report-link" class="far fa-frown fa-2x icon-silver m-3"
+						     th:href="@{'/pets/report/'+${pet.id}}" title="Report missing"></a>
+						    <a th:if="${pet.missing == true}" class="far fa-frown fa-2x icon-red m-3"
+						    title="Report reunited" th:href="@{'/pets/reunited/'+${pet.id}}"></a>
+						</div>
+						
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		
+		<div class="text-center">
+			<p>Pack Tracker - Copyright &copy; Pack Tracker</p>
+		</div>
+		
+	</div>
+	
+	<!-- script for delete modal window -->
+	
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$(".link-delete").on("click",function(e) {
+				e.preventDefault();
+				link = $(this);
+				petName = link.attr("petName");
+				$("#yesButton").attr("href",link.attr("href"));
+				$("#modalBody").text("Are you sure, you want to delete "+petName+"'s pet profile?");
+				$("#deleteModal").modal();
+			});
+		});
+		
+		 $('#report-link').on('click', function () {
+			 $(window).on('load', function () {
+				    $('#loading').hide();
+			 })
+		 }) 
+	</script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+package com.packtracker.site.pet;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.packtracker.common.entity.Pet;
+import com.packtracker.common.entity.User;
+import com.packtracker.site.FileUploadUtil;
+import com.packtracker.site.user.UserNotFoundException;
+import com.packtracker.site.user.UserService;
+
+
+@Controller
+public class PetController {
+			
+	@Autowired
+	private PetService petService;
+	
+	@Autowired
+	private UserService userService;
+	
+	@GetMapping("/pets")
+	public String viewPetsList(Model model) {
+		
+		Authentication aut = SecurityContextHolder.getContext().getAuthentication();
+		String currentPrincipalName = aut.getName();
+		User currentUser = userService.getUserByEmail(currentPrincipalName);
+		
+		List<Pet> listOfPets = petService.findAllByUser(currentUser);
+		model.addAttribute("listOfPets", listOfPets);
+		model.addAttribute("user",currentUser);
+		
+		return "pets";
+	}
+	
+	@GetMapping("/pets/new")
+	public String createNew(Model model) {
+		Pet pet = new Pet();
+		pet.setMissing(false);
+		model.addAttribute("pet", pet);
+		model.addAttribute("pageTitle","Add New Pet Profile");
+		return "pet_form";
+	}
+	
+	@PostMapping("/pets/save")
+	public String savePet(Pet pet, RedirectAttributes redirectAttributes,
+			@RequestParam("image") MultipartFile multipartFile) throws IOException {
+		
+		if (pet.getDescription().isBlank()) pet.setDescription(null);
+		if (pet.getDate().isBlank()) pet.setDate(null);
+		if (pet.getArea().isBlank()) pet.setArea(null);
+		if (pet.getStreet().isBlank()) pet.setStreet(null);
+		
+		if (!multipartFile.isEmpty()) {
+			String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+			pet.setPhoto(fileName);
+			
+			Pet savedPet = petService.savePet(pet);
+			String uploadDir = "pet-photos/"+savedPet.getId();
+			
+			FileUploadUtil.cleadDir(uploadDir);
+			FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
+			
+		} else {
+			if (pet.getPhoto().isEmpty()) pet.setPhoto(null);
+			petService.savePet(pet);
+		}
+		
+		redirectAttributes.addFlashAttribute("message","Pet profile successfully saved!");
+		return "redirect:/pets";
+	}
+	
+	@GetMapping("/pets/edit/{id}")
+	public String editPet(@PathVariable(name="id") Integer id,
+			RedirectAttributes redirectAttributes, Model model) {
+		try {
+			Pet pet = petService.getPetById(id);
+			model.addAttribute("pet", pet);
+			model.addAttribute("pageTitle", "Edit Pet Profile");
+			return "pet_form";
+		} catch (PetNotFoundException e) {
+			redirectAttributes.addFlashAttribute("message",e.getMessage());
+			return "redirect:/pets";
+		}
+	}
+	
+	@GetMapping("/pets/delete/{id}")
+	public String deletePet(@PathVariable(name="id") Integer id,
+			RedirectAttributes redirectAttributes) throws UserNotFoundException {
+		try {
+			petService.deletePetById(id);
+			redirectAttributes.addFlashAttribute("message","Pet Profile successfully deleted!");
+			
+		} catch (PetNotFoundException e) {
+			redirectAttributes.addFlashAttribute("message",e.getMessage());
+		}
+		
+		return "redirect:/pets";
+	}
+	
+	@GetMapping("/pets/report/{id}")
+	public String reportPet(@PathVariable(name="id") Integer id,
+			RedirectAttributes redirectAttributes, Model model) {
+		try {
+			Pet pet = petService.getPetById(id);
+			
+			User user = pet.getUser();
+			
+			model.addAttribute("pet", pet);
+			model.addAttribute("user", user);
+			
+		} catch (PetNotFoundException e) {
+			redirectAttributes.addFlashAttribute("message",e.getMessage());
+			return "redirect:/pets";
+		}
+		
+		return "report_form";
+	}
+	
+	@GetMapping("/pets/reunited/{id}")
+	public String reportReunited(@PathVariable(name="id") Integer id,
+			RedirectAttributes redirectAttributes) {
+		try {
+			Pet pet = petService.getPetById(id);
+			
+			pet.setMissing(false);
+			pet.setDate(null);
+			pet.setArea(null);
+			pet.setStreet(null);
+			
+			petService.savePet(pet);
+			
+			redirectAttributes.addFlashAttribute("message","Pet reunion reported!");
+			
+		} catch (PetNotFoundException e) {
+			redirectAttributes.addFlashAttribute("message",e.getMessage());
+			return "redirect:/pets";
+		}
+		
+		return "redirect:/pets";
+	}
+	
+	@PostMapping("/pets/save_report")
+	public String saveReport(User user, Pet pet, RedirectAttributes redirectAttributes) throws PetNotFoundException {
+		
+		Pet missingPet = petService.getPetById(pet.getId());
+		
+		missingPet.setMissing(true);
+		missingPet.setDate(pet.getDate());
+		missingPet.setArea(pet.getArea());
+		if (pet.getStreet().isBlank()) {
+			missingPet.setStreet(null);
+		} else
+			missingPet.setStreet(pet.getStreet());
+			
+		
+		redirectAttributes.addFlashAttribute("message","Pet reported missing!");
+		
+		petService.savePet(missingPet);
+		
+		User current = missingPet.getUser();
+		
+		if (!current.phoneSet()) {
+			current.setPhone(user.getPhone());
+		}
+		
+		userService.updateUser(current);
+		
+		return "redirect:/pets";
+	}
+}

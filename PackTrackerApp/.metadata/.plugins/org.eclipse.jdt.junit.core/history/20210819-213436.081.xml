@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="PetRepositoryTests.findAllByUserTest" project="PackTrackerFrontEnd" tests="1" started="1" failures="0" errors="0" ignored="0">
+  <testsuite name="com.packtracker.site.pet.PetRepositoryTests" time="0.334" displayname="PetRepositoryTests" uniqueid="[engine:junit-jupiter]/[class:com.packtracker.site.pet.PetRepositoryTests]">
+    <testcase name="findAllByUserTest" classname="com.packtracker.site.pet.PetRepositoryTests" time="0.334" displayname="findAllByUserTest()" uniqueid="[engine:junit-jupiter]/[class:com.packtracker.site.pet.PetRepositoryTests]/[method:findAllByUserTest()]"/>
+  </testsuite>
+</testrun>

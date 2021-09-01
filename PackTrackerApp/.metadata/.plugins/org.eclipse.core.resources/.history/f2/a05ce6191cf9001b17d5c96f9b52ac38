@@ -1,0 +1,116 @@
+package com.packtracker.site.pet;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.packtracker.common.entity.Pet;
+import com.packtracker.common.entity.User;
+import com.packtracker.site.user.UserRepository;
+import com.packtracker.site.user.UserService;
+
+@Service
+@Transactional
+public class PetService  {
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private PetRepository petRepo;
+	
+	@Autowired
+	private UserRepository userRepo;
+	
+	@Autowired
+	private JavaMailSender mailsender;
+	
+	public Pet savePet(Pet pet) {
+		
+		Integer id = pet.getId();
+		boolean newPet = (id==null);
+		
+		// retrieves the currently logged in user
+		Authentication aut = SecurityContextHolder.getContext().getAuthentication();
+		String currentPrincipalName = aut.getName();
+		User currentUser = userService.getUserByEmail(currentPrincipalName);
+		
+		// for newly added pet
+		if (newPet) {
+			currentUser.addPet(pet);
+		
+		// for editing existing pet
+		} else {
+			Pet currentPet = petRepo.findById(id).get();
+			currentUser.removePet(currentPet);
+			currentUser.addPet(pet);
+		}
+		
+		userRepo.save(currentUser);
+		
+		// returns the last added pet object
+		if (newPet) {
+			Integer lastAdded = currentUser.getPets().size()-1;
+			return petRepo.getAllbyUser(currentUser).get(lastAdded);
+		
+		//returns pet object currently being edited
+		} else {
+			return petRepo.findById(id).get();
+		}
+	}
+	
+	public List<Pet> findAllByUser(User user) {
+		return petRepo.getAllbyUser(user);
+	}
+
+	public Pet getPetById(Integer id) throws PetNotFoundException {
+		try {
+			return petRepo.findById(id).get();
+		} catch (NoSuchElementException e) {
+			throw new PetNotFoundException("Could not find pet with ID: "+id);
+		}
+	}
+	
+	public void deletePetById(Integer id) throws PetNotFoundException {
+		
+		Authentication aut = SecurityContextHolder.getContext().getAuthentication();
+		String currentPrincipalName = aut.getName();
+		User currentUser = userService.getUserByEmail(currentPrincipalName);
+		
+		Long count = petRepo.countById(id);
+		
+		if (count == null || count == 0) {
+			throw new PetNotFoundException("Could not find pet with ID: "+id);
+		} else {
+			Pet pet = petRepo.findById(id).get();
+			currentUser.removePet(pet);
+			petRepo.deleteById(id);
+			userRepo.save(currentUser);
+		}
+	}
+	
+	public List<Pet> listMissingByAreaAndKeyword(String area, String keyword) {
+		
+		if (keyword!=null) {
+			return petRepo.getMissingByAreaAndKeyword(area, keyword);
+		}
+		
+		return petRepo.getMissingByArea(area);
+	}
+	
+	public void sendEmail(String recipient, String body, String subject) {
+		
+		SimpleMailMessage message = new SimpleMailMessage();
+	}
+	
+	
+	
+	
+}

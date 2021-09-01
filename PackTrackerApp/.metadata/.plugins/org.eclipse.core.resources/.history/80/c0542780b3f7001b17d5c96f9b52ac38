@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head th:replace="fragments :: page_head('Pack Tracker - Home')"/>
+
+<body>
+	<div class="container-fluid">
+	
+		<div th:replace="fragments :: navigation"></div>
+		
+		<div class="modal fade" id="detailsModal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title"><span class="badge badge-success">Pet Details</span></h4> 
+					</div>
+					
+					<div class="modal-body">
+						<span id="modalBody"></span>
+					</div>
+					
+					 <div class="modal-footer">
+					 	<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+					 </div>
+				</div>
+			</div>
+		</div>
+			
+	<!--<h2 th:if="${!listOfMissing.empty}">Pets missing from area <span sec:authentication="principal.location"></span></h2>
+		<h2 th:if="${listOfMissing.empty}">No pets were reported missing from area <span sec:authentication="principal.location"></span></h2>-->
+		
+		<h2 th:if="${!listOfMissing.empty}">Pets missing from your area</h2>
+		<h2 th:if="${listOfMissing.empty}">No pets were reported missing from your area</h2>
+		
+		<form th:action="@{/}" class="form-inline m-3">
+			<label for="search">Search</label>
+			<input type="search" id="search" name="search"/>
+		</form>
+		
+		<hr>
+		
+		<div class="row">
+			<div th:each="pet: ${listOfMissing}" class="col-md-3 mb-3">
+				<div class="card shadow text-center" style="width: 15rem; margin: 0 auto;">
+				  <img class="card-img-top" th:src="@{${pet.photosImagePath}}" alt="Card image cap">
+				  <div class="card-body">
+				    <h5 class="card-title">[[${pet.name}]]</h5>
+				    <p class="card-text">Missing since: [[${pet.date}]]</p>
+				    <a href="" class="btn btn-success link-details"
+				    
+				    th:petName="${pet.name}"
+				    th:petBreed="${pet.breed}"
+				    th:petGender="${pet.gender}"
+				    th:petAge="${pet.age}"
+				    th:petDescription="${pet.description}"
+				    th:petStreet="${pet.street}"
+				    th:contact="${pet.user.phone}"
+				    
+				    >Details</a>
+				  </div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="text-center">
+			<p>Pack Tracker - Copyright &copy; Pack Tracker</p>
+		</div>
+	</div>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$(".link-details").on("click", function(e) {
+				e.preventDefault();
+				link = $(this);
+				
+				petName = link.attr("petName");
+				petBreed = link.attr("petBreed");
+				petGender = link.attr("petGender");
+				petAge = link.attr("petAge");
+				petDescription = link.attr("petDescription");
+				petStreet = link.attr("petStreet");
+				contact = link.attr("contact");
+				
+				$("#modalBody").html(
+						
+						"<b>Name: </b>"+petName+"<br>"+
+						"<b>Breed: </b>"+petBreed+"<br>"+
+						"<b>Gender: </b>"+petGender+"<br>"+
+						"<b>Age: </b>"+petAge+"<br>"+
+						"<b>Special Markings: </b>"+petDescription+"<br><br>"+
+						"<b>Missing from street: </b>"+petStreet+"<br>"+
+						"<b>Contact Number: </b>"+contact);
+						
+				$("#detailsModal").modal();
+			});
+		});
+	</script>
+</body>
+</html>

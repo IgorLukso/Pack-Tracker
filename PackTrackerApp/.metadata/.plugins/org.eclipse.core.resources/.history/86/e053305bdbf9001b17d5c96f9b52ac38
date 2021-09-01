@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head th:replace="fragments :: page_head('Pack Tracker - Report Form')"/>
+
+<body>
+	
+	<div id="loading">
+		<img id="loading-image" th:src="@{/images/ajax-loader.gif}">
+	</div>
+	
+	<div class="container-fluid">
+		<div th:replace="fragments :: navigation"></div>
+		
+		<div>
+			<h2>Report Missing pet [[${pet.name}]]</h2>
+		</div><hr>
+		
+		<form th:action="@{/pets/save_report}" method="post" style="max-width: 800px; margin: 0 auto">
+			
+			<input type="hidden" th:value="${pet.id}" name="id"/>
+			
+			<div class="border border-secondary rounded p-4 text-center">
+			
+				<div class="form-group row">
+					<label for="date" class="col-sm-4 col-form-label">Missing since:</label>
+					<div class="col-sm-8">
+						<input type="date" id="noFuture" class="form-control" th:value="${pet.date}" 
+						name="date" required />
+					</div>
+				</div>
+				
+				<div class="form-group row">
+					<label for="area" class="col-sm-4 col-form-label">Missing from area:</label>
+					<div class="col-sm-8">
+						<select id="area" class="form-control" th:value="${pet.area}" name="area" required>
+							<option th:value="'D1'">D1</option>
+							<option th:value="'D2'">D2</option>
+							<option th:value="'D3'">D3</option>
+							<option th:value="'D4'">D4</option>
+							<option th:value="'D5'">D5</option>
+							<option th:value="'D6'">D6</option>
+							<option th:value="'D6W'">D6W</option>
+							<option th:value="'D7'">D7</option>
+							<option th:value="'D8'">D8</option>
+							<option th:value="'D9'">D9</option>
+							<option th:value="'D10'">D10</option>
+							<option th:value="'D11'">D11</option>
+							<option th:value="'D12'">D12</option>
+							<option th:value="'D13'">D13</option>
+							<option th:value="'D14'">D14</option>
+							<option th:value="'D15'">D15</option>
+							<option th:value="'D16'">D16</option>
+							<option th:value="'D17'">D17</option>
+							<option th:value="'D18'">D18</option>
+							<option th:value="'D20'">D20</option>
+							<option th:value="'D22'">D22</option>
+							<option th:value="'D24'">D24</option>
+						</select>
+					</div>
+				</div>
+				
+				<div class="form-group row">
+					<label for="street" class="col-sm-4 col-form-label">Missing from street:</label>
+					<div class="col-sm-8">
+						<input type="text" id="street" class="form-control" th:value="${pet.street}" name="street"/>
+					</div>
+				</div>
+				
+				<div class="form-group row">
+				
+					<!-- displays phone number input only if current user didn't provide it before -->
+					
+					<label th:if="${user.phone == null}" for="phone" class="col-sm-4 col-form-label">Contact Number:</label>
+					<div class="col-sm-8">
+						<input th:if="${user.phone == null}" type="text" id="phone" class="form-control" th:value="${user.phone}" name="phone" required/>
+					</div>
+					
+				</div>
+				
+				<input type="submit" value="Report" class="btn btn-primary m-3"/>
+				<a class="btn btn-secondary" th:href="@{/pets}">Cancel</a>
+				
+			</div>
+			
+		</form>
+		
+		<div class="text-center">
+			<p>Pack Tracker - Copyright &copy; Pack Tracker</p>
+		</div>
+		
+	</div>
+	
+	<script type="text/javascript">
+		
+		// no future dates for a date picker input
+		today = new Date();
+		month = today.getMonth()+1;
+		year = today.getFullYear();
+		day = today.getDate();
+		if (month<10) month = "0"+month;
+		if (day<10) day = "0"+day;
+		maxDate = year+"-"+month+"-"+day;
+		document.getElementById("noFuture").setAttribute("max",maxDate);
+	
+	</script>
+	
+</body>
+</html>

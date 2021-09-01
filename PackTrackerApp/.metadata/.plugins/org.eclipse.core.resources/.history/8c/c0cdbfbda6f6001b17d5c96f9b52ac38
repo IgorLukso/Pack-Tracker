@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments :: page_head('Pack Tracker - Manage Profile')"/>
+
+<body>
+	<div class="container-fluid">
+	
+		<div th:replace="fragments :: navigation"></div>
+		
+		<div class="text-center">
+			<h2>Edit Profile</h2>
+		</div><hr>
+		
+		<form th:action="@{/user/save}" method="post" style="max-width: 800px; margin: 0 auto" th:object="${user}"
+		 onsubmit="return checkEmailUnique(this);">
+		 
+			<div class="border border-secondary rounded p-4">
+			
+				<div class="form-group row">
+					<label for="password" class="col-sm-4 col-form-label">Password:</label>
+					<div class="col-sm-8">	
+						<input type="password"  id="password" class="form-control" th:field="*{password}" minlength="6" maxlength="20" required
+						oninput="checkPasswordEqual(document.getElementById('passwordRepeat'))"/>
+					</div>
+				</div>
+				
+				<div class="form-group row">
+					<label for="passwordRepeat" class="col-sm-4 col-form-label">Re-type Password:</label>
+					<div class="col-sm-8">	
+						<input type="password"  id="passwordRepeat" class="form-control" minlength="6" maxlength="20" required
+						 oninput="checkPasswordEqual(this)"/>
+					</div>
+				</div>
+				
+				<div class="form-group row">
+					<label for="location" class="col-sm-4 col-form-label">Location:</label>
+					<div class="col-sm-8">
+						<select id="location" class="form-control" th:field="*{location}" required>
+							<option th:value="'D1'">D1</option>
+							<option th:value="'D2'">D2</option>
+							<option th:value="'D3'">D3</option>
+							<option th:value="'D4'">D4</option>
+							<option th:value="'D5'">D5</option>
+							<option th:value="'D6'">D6</option>
+							<option th:value="'D6W'">D6W</option>
+							<option th:value="'D7'">D7</option>
+							<option th:value="'D8'">D8</option>
+							<option th:value="'D9'">D9</option>
+							<option th:value="'D10'">D10</option>
+							<option th:value="'D11'">D11</option>
+							<option th:value="'D12'">D12</option>
+							<option th:value="'D13'">D13</option>
+							<option th:value="'D14'">D14</option>
+							<option th:value="'D15'">D15</option>
+							<option th:value="'D16'">D16</option>
+							<option th:value="'D17'">D17</option>
+							<option th:value="'D18'">D18</option>
+							<option th:value="'D20'">D20</option>
+							<option th:value="'D22'">D22</option>
+							<option th:value="'D24'">D24</option>
+						</select>
+					</div>
+				</div> 
+				
+				<div class="form-group row">
+					<label for="phone" class="col-sm-4 col-form-label">Phone Number:</label>
+					<div class="col-sm-8">	
+						<input type="text" id="phone" class="form-control" th:field="*{phone}"/>
+					</div>
+				</div>
+				
+				<div class="text-center">
+				
+					<input type="submit" value="Save" class="btn btn-primary m-3"/>
+					<a class="btn btn-secondary" th:href="@{/login}">Cancel</a>
+					
+				</div>
+			</div>
+		</form> 
+		
+				<!-- modal dialog window for email uniqueness test -->
+		
+		<div class="modal fade text-center" id="modalDialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+				
+					<div class="modal-header">
+						<h4 class="modal-title" id="modalTitle"></h4>
+					</div>
+					
+					<div class="modal-body">
+						<span id="modalBody"></span>
+					</div>
+					
+					 <div class="modal-footer">
+					 	<button type="button" class="btn btn-primary" data-dismiss="modal">Got it</button>
+					 </div>
+					 
+				</div>
+			</div>
+		</div>
+		
+				
+		<div class="text-center">
+			<p>Pack Tracker - Copyright &copy; Pack Tracker</p>
+		</div>
+		
+	</div>
+	
+	
+	<script type="text/javascript">
+		
+		// AJAX call to the REST API to check the email uniqueness 
+		function checkEmailUnique(form) {
+			url = "[[@{/user/check_email}]]";
+			userEmail = $("#email").val();
+			csrfValue = $("input[name='_csrf']").val();
+			params = {email: userEmail, _csrf: csrfValue};
+			
+			$.post(url, params, function(response) {
+				if (response == "unique") {
+					form.submit();
+				} else if (response == "duplicate") {
+					showModal("Info","The email address "+userEmail+" is already in use");
+				}
+			}).fail(function() {
+				showModal("Error","Could not connect to the server")
+			});
+			
+			return false;
+		}
+		
+		function showModal(title, text) {
+			$("#modalTitle").text(title);
+			$("#modalBody").text(text);
+			$("#modalDialog").modal();
+		}
+		
+		function checkPasswordEqual(passwordRepeat) {
+			if (passwordRepeat.value != $("#password").val()) {
+				passwordRepeat.setCustomValidity("Passwords do not match!")
+			} else
+				passwordRepeat.setCustomValidity("");
+		}
+		
+	</script>
+	
+</body>
+</html>

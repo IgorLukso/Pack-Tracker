@@ -1,0 +1,85 @@
+package com.packtracker.site.pet;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.Rollback;
+
+import com.packtracker.common.entity.Pet;
+import com.packtracker.common.entity.User;
+import com.packtracker.site.user.UserRepository;
+
+@DataJpaTest(showSql = false)
+@AutoConfigureTestDatabase(replace = Replace.NONE)
+@Rollback(false)
+public class PetRepositoryTests {
+
+	@Autowired
+	private UserRepository userRepo;
+	
+	@Autowired
+	private PetRepository petRepo;
+	
+	@Test
+	public void addNewPetTest() {
+		User currentUser = userRepo.getUserByEmail("john@nomail.com");
+		Pet pet = new Pet("dog","beagle","Duke","5","asas","sdasds");
+		currentUser.addPet(pet);
+		userRepo.save(currentUser);
+		
+		System.out.println(currentUser);
+		
+		assertThat(pet.getId()).isNotNull();
+	}
+	
+	@Test
+	public void findAllByUserTest() {
+		User currentUser = userRepo.getUserByEmail("john@nomail.com");
+		List<Pet> listOfPetsByUser = petRepo.getAllbyUser(currentUser);
+		
+		System.out.println(listOfPetsByUser);
+		
+		assertThat(listOfPetsByUser).isNotEmpty();
+	}
+	
+	@Test
+	public void findByIdTest() { 
+		
+		Long count = petRepo.countById(1);
+		assertThat(count).isGreaterThan(0);
+	}
+	
+	// listing missing pets by area
+	@Test
+	public void findMissingByAreaTest() {
+		
+		String area = "D1";
+		
+		List<Pet> listOfMissing = petRepo.getMissingByArea(area);
+		
+		System.out.println();
+		listOfMissing.forEach(pet -> System.out.println(pet));
+		System.out.println();
+				
+		assertThat(listOfMissing.size()).isGreaterThan(0);
+	}
+	
+	@Test
+	public void findMissingByKeyword() {
+		
+		String keyword = "dog";
+		List<Pet> list = petRepo.getMissingByKeyword(keyword);
+		
+		System.out.println(list);
+		
+		assertThat(list.size()).isGreaterThan(0);
+	}
+	
+	
+}

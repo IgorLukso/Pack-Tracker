@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="UserRepositoryTests.getUserByEmailTest" project="PackTrackerFrontEnd" tests="1" started="1" failures="0" errors="0" ignored="0">
+  <testsuite name="com.packtracker.site.user.UserRepositoryTests" time="0.298" displayname="UserRepositoryTests" uniqueid="[engine:junit-jupiter]/[class:com.packtracker.site.user.UserRepositoryTests]">
+    <testcase name="getUserByEmailTest" classname="com.packtracker.site.user.UserRepositoryTests" time="0.298" displayname="getUserByEmailTest()" uniqueid="[engine:junit-jupiter]/[class:com.packtracker.site.user.UserRepositoryTests]/[method:getUserByEmailTest()]"/>
+  </testsuite>
+</testrun>

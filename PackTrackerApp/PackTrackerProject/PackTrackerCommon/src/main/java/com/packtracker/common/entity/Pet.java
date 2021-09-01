@@ -1,0 +1,207 @@
+package com.packtracker.common.entity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+@Entity(name = "Pet")
+@Table(name = "pets")
+public class Pet {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
+
+	@Column(length = 40, nullable = false)
+	private String type;
+
+	@Column(length = 40, nullable = false)
+	private String breed;
+
+	@Column(length = 40, nullable = false)
+	private String name;
+
+	@Column(length = 10, nullable = false)
+	private String age;
+
+	@Column(length = 250)
+	private String description;
+	
+	@Column(length = 250)
+	private String photo;
+	
+	@Column
+	private String gender;
+	
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User user;
+	
+	private boolean missing;
+	
+	@Column(length = 250, nullable = true)
+	private String date;
+	
+	@Column(length = 10, nullable = true)
+	private String area;
+	
+	@Column(length = 250, nullable = true)
+	private String street;
+	
+	public Pet() {
+	}
+ 	
+
+	public Pet(String type, String breed, String name, String age, String description, String photo) {
+		this.type = type;
+		this.breed = breed;
+		this.name = name;
+		this.age = age;
+		this.description = description;
+		this.photo = photo;
+	}
+
+	
+	public String getPhoto() {
+		return photo;
+	}
+
+	public void setPhoto(String photo) {
+		this.photo = photo;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+	
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+	
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public String getBreed() {
+		return breed;
+	}
+
+	public void setBreed(String breed) {
+		this.breed = breed;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getAge() {
+		return age;
+	}
+
+	public void setAge(String age) {
+		this.age = age;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public boolean isMissing() {
+		return missing;
+	}
+
+	public void setMissing(boolean missing) {
+		this.missing = missing;
+	}
+	
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public String getArea() {
+		return area;
+	}
+
+	public void setArea(String area) {
+		this.area = area;
+	}
+
+	public String getStreet() {
+		return street;
+	}
+
+	public void setStreet(String street) {
+		this.street = street;
+	}
+
+	@Override
+	public String toString() {
+		return "Pet [id=" + id + ", type=" + type + ", breed=" + breed + ", name=" + name + ", age=" + age
+				+ ", description=" + description + ", photo=" + photo + ", date="+date+", area="+area+", street="+street+ "]";
+	}
+
+	@Override
+	public int hashCode() {
+		return getClass().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) 
+			return true;
+		
+		if (!(obj instanceof Pet))
+			return false;
+		
+		return
+				id != null && id.equals(((Pet) obj).getId());
+	}
+	
+	//Transient annotation to indicate that this getter 
+	//is not mapped to any field in the database
+	
+	@Transient
+	public String getPhotosImagePath() {
+		if (id==null || photo==null) return "/images/default_photo.png";
+		return "/pet-photos/" +this.id+ "/" +this.photo;
+	 }
+}
+

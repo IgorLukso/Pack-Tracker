@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="PetRepositoryTests.countByIdTest" project="PackTrackerFrontEnd" tests="1" started="1" failures="0" errors="0" ignored="0">
+  <testsuite name="com.packtracker.site.pet.PetRepositoryTests" time="0.313" displayname="PetRepositoryTests" uniqueid="[engine:junit-jupiter]/[class:com.packtracker.site.pet.PetRepositoryTests]">
+    <testcase name="countByIdTest" classname="com.packtracker.site.pet.PetRepositoryTests" time="0.313" displayname="countByIdTest()" uniqueid="[engine:junit-jupiter]/[class:com.packtracker.site.pet.PetRepositoryTests]/[method:countByIdTest()]"/>
+  </testsuite>
+</testrun>

@@ -1,0 +1,5 @@
+package com.packtracker.site.email;
+
+public class EmailSenderService {
+
+}

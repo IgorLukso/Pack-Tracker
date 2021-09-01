@@ -1,0 +1,26 @@
+package com.packtracker.site.pet;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import com.packtracker.common.entity.Pet;
+import com.packtracker.common.entity.User;
+
+@Repository
+public interface PetRepository extends CrudRepository<Pet, Integer>  {
+	
+	@Query("SELECT p FROM Pet p WHERE p.user = :user")
+	public List<Pet> getAllbyUser(@Param("user") User user);
+	
+	public Long countById(Integer id);
+	
+	@Query("SELECT p FROM Pet p WHERE p.missing = true AND p.area = ?1")
+	public List<Pet> getMissingByArea(@Param("area") String area);
+	
+	@Query("SELECT p FROM Pet p WHERE p.missing = true AND p.area = ?1 AND p.type LIKE %?2%")
+	public List<Pet> getMissingByAreaAndKeyword(@Param("area") String area, @Param("keyword") String keyword);
+}
